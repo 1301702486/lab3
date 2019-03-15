@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Npgsql;
 
 namespace lab3
 {
@@ -15,6 +16,37 @@ namespace lab3
         public Form1()
         {
             InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string pswd = textBox1.Text;
+            if (pswd != "hsc1209")
+            {
+                MessageBox.Show("Your password is wrong. Please try again.");
+            }
+            else {
+                var connString = "Host=localhost;Port=5432;Username=postgres;Password=" + pswd + ";Database=whu";
+                using (var conn = new NpgsqlConnection(connString))
+                {
+                    conn.Open();
+                    
+                }
+                //跳转主界面
+                this.DialogResult = DialogResult.OK;
+                this.Dispose();
+                this.Close();
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }
