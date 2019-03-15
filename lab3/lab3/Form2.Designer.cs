@@ -1,8 +1,7 @@
 ﻿namespace lab3
 {
     partial class Form2
-    {
-        /// <summary>
+    {        /// <summary>
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
