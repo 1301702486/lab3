@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Npgsql;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,5 +19,6 @@ namespace pgManager
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
         }
+        
     }
 }
