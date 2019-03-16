@@ -22,6 +22,7 @@ namespace pgManager
         public Form1()
         {
             InitializeComponent();
+            panelTree.Visible = false;
         }
 
         public static NpgsqlConnection GetConnection()
@@ -116,7 +117,33 @@ namespace pgManager
         private void timer1_Tick(object sender, EventArgs e)
         {
             panel1.Visible = false;
+            panelTree.Visible = true;
+            InitTreeView();
             timer1.Stop();
+        }
+
+        private void InitTreeView()
+        {
+            treeView1.BeginUpdate();
+            treeView1.CheckBoxes = false;
+            TreeNode tNode = treeView1.Nodes.Add(DBname);
+            using (var conn = GetConnection())
+            {
+                string sql = "SELECT tablename FROM pg_tables WHERE tablename NOT LIKE 'pg%' AND tablename NOT LIKE 'sql_%' ORDER BY tablename;";
+                using (var dataAdapter = new NpgsqlDataAdapter(sql, conn))
+                {
+                    using(DataSet ds = new DataSet())
+                    {
+                        dataAdapter.Fill(ds);
+                        foreach(DataRow dr in ds.Tables[0].Rows)
+                        {
+                            // 产生子节点(列出当前数据库中所有表名)
+                            treeView1.Nodes[0].Nodes.Add(dr[0].ToString());
+                        }
+                    }
+                }
+            }
+            treeView1.EndUpdate();
         }
     }
 }
