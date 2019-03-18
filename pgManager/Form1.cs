@@ -39,15 +39,7 @@ namespace pgManager
             return conn;
         }
 
-        public static void WhereClause()
-        {
-            using (var conn = GetConnection())
-            {
-                string whereStr = string.Format(
-                    "where;"
-                    );
-            }
-        }
+        
 
         // 简易版insert（插入一个单值）
         public static void Insert(string tableName, string colName, string value)
@@ -144,6 +136,16 @@ namespace pgManager
                 }
             }
             treeView1.EndUpdate();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBoxPswd_KeyDown(object sender, KeyEventArgs e)
+        {
+
         }
     }
 }
