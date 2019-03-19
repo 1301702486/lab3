@@ -13,6 +13,7 @@ namespace lab3
 {
     public partial class Form1 : Form
     {
+        // 获取PgsqlAccess单例
         PgsqlAccess pg = PgsqlAccess.getInstance();
 
         public Form1()
@@ -22,45 +23,17 @@ namespace lab3
 
         //after you click OK,exam weather your password is right
         private void button1_Click(object sender, EventArgs e)
-        {   //open the database
-            pg.Host = textBox2.Text;
-            pg.User = textBox3.Text;
-            pg.DBname = textBox4.Text;
-            pg.Password = textBox1.Text;
-            pg.Port = textBox5.Text;
-            //NpgsqlConnection conn = null;
-            //try
-            //{
-            //    string connStr = string.Format(
-            //            "Server={0}; User Id={1}; Database={2}; Port={3}; Password={4};",
-            //            pg.Host,
-            //            pg.User,
-            //            pg.DBname,
-            //            pg.Port,
-            //            pg.Password);
-            //    conn = new NpgsqlConnection(connStr);
-            //    conn.Open();
-
-            //}
-            //catch (Exception)
-            //{
-            //    MessageBox.Show("Wrong password!");
-            //    Application.Exit();
-            //}
-            //finally
-            //{
-            //    if (conn != null)
-            //    {
-            //        conn.Close();
-            //    }
-            //    //change to form2, one of the operations
-            //    this.DialogResult = DialogResult.OK;
-            //    this.Dispose();
-            //    this.Close();
-            //}
+        {   
+            //open the database
+            pg.Host = textBoxHost.Text;
+            pg.User = textBoxUserName.Text;
+            pg.DBname = textBoxDB.Text;
+            pg.Password = textBoxPswd.Text;
+            pg.Port = textBoxPort.Text;
+            NpgsqlConnection conn = null;
             try
             {
-                var conn = pg.GetConnection();
+                conn = pg.GetConnection();
                 this.DialogResult = DialogResult.OK;
                 this.Dispose();
                 this.Close();
@@ -70,14 +43,7 @@ namespace lab3
                 MessageBox.Show("Wrong password!");
                 Application.Exit();
             }
-            
-
         }
-
-
-
-
-
 
         //cancle your operation
 
@@ -85,6 +51,14 @@ namespace lab3
         {
             Application.Exit();
         }
-        
+
+        private void textBoxPswd_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // 按回车键直接登录
+            if (e.KeyChar == Convert.ToChar(Keys.Return))
+            {
+                button1_Click(sender, e);
+            }
+        }
     }
 }

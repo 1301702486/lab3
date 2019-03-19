@@ -12,18 +12,14 @@ using Npgsql;
 using System.Configuration;
 
 namespace lab3
-
 {
     public partial class Form2 : Form
     {
+        // 获取PgsqlAccess单例
         PgsqlAccess pg = PgsqlAccess.getInstance();
 
-        //连接数据库,and some necessary variables
+        // 连接数据库的变量
         NpgsqlConnection connection;
-        private DataTable datatable;
-
-        NpgsqlDataAdapter dataAdapter;
-        private DataSet ds = new DataSet();
 
         public Form2()
         {
@@ -33,24 +29,19 @@ namespace lab3
         }
         private void Form2_load(object sender, EventArgs e)
         {
-
             BindTree();
-
         }
         private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             
             if (e.Node.Bounds.Contains(e.Location))
-
-            { 
-               
+            {
                 //表的内容显示
             }
         }
         //add nodes towards the treeview
         private void BindTree()
         {
-            
             treeView1.BeginUpdate();
             TreeNode tNode = treeView1.Nodes.Add("whu");
             //connect to the database
@@ -68,11 +59,8 @@ namespace lab3
                             treeView1.Nodes[0].Nodes.Add(dr[0].ToString());
                         }
                     }
-
-
                 }
             }
-            
             treeView1.EndUpdate();
         }
         //感觉下面的可以删掉

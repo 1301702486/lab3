@@ -24,6 +24,7 @@ public class PgsqlAccess
         return instance;
     }
 
+    // 连接数据库
     public NpgsqlConnection GetConnection()
     {
         string connStr = string.Format(
@@ -38,13 +39,15 @@ public class PgsqlAccess
         }
         catch(Exception)
         {
+            if (conn != null)
+            {
+                conn.Close();
+            }
             throw new Exception("Wrong password!");
         }
         return conn;
     }
-
     
-
     // 简易版insert（插入一个单值）
     public void Insert(string tableName, string colName, string value)
     {
