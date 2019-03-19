@@ -13,62 +13,64 @@ namespace lab3
 {
     public partial class Form1 : Form
     {
-        private static string Host = "localhost";
-        private static string User = "postgres";
-        private static string DBname = "whu";
-        private static string Password = "postgres";
-        private static string Port = "5432";
+        PgsqlAccess pg = PgsqlAccess.getInstance();
 
         public Form1()
         {
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
-
-
-        //afteryou click OK,exam weather your password is right
+        //after you click OK,exam weather your password is right
         private void button1_Click(object sender, EventArgs e)
         {   //open the database
-            Host = textBox2.Text;
-            User = textBox3.Text;
-            DBname = textBox4.Text;
-            Password = textBox1.Text;
-            Port = textBox5.Text;
-            NpgsqlConnection conn = null;
+            pg.Host = textBox2.Text;
+            pg.User = textBox3.Text;
+            pg.DBname = textBox4.Text;
+            pg.Password = textBox1.Text;
+            pg.Port = textBox5.Text;
+            //NpgsqlConnection conn = null;
+            //try
+            //{
+            //    string connStr = string.Format(
+            //            "Server={0}; User Id={1}; Database={2}; Port={3}; Password={4};",
+            //            pg.Host,
+            //            pg.User,
+            //            pg.DBname,
+            //            pg.Port,
+            //            pg.Password);
+            //    conn = new NpgsqlConnection(connStr);
+            //    conn.Open();
+
+            //}
+            //catch (Exception)
+            //{
+            //    MessageBox.Show("Wrong password!");
+            //    Application.Exit();
+            //}
+            //finally
+            //{
+            //    if (conn != null)
+            //    {
+            //        conn.Close();
+            //    }
+            //    //change to form2, one of the operations
+            //    this.DialogResult = DialogResult.OK;
+            //    this.Dispose();
+            //    this.Close();
+            //}
             try
             {
-                string connStr = string.Format(
-                        "Server={0}; User Id={1}; Database={2}; Port={3}; Password={4};",
-                        Host,
-                        User,
-                        DBname,
-                        Port,
-                        Password);
-                conn = new NpgsqlConnection(connStr);
-                conn.Open();
-
+                var conn = pg.GetConnection();
+                this.DialogResult = DialogResult.OK;
+                this.Dispose();
+                this.Close();
             }
             catch (Exception)
             {
                 MessageBox.Show("Wrong password!");
                 Application.Exit();
             }
-            finally
-            {
-                if (conn != null)
-                {
-                    conn.Close();
-                }
-                //change to form2, one of the operations
-                this.DialogResult = DialogResult.OK;
-                this.Dispose();
-                this.Close();
-            }
-
+            
 
         }
 
@@ -76,18 +78,13 @@ namespace lab3
 
 
 
-      
+
         //cancle your operation
 
         private void button2_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
+        
     }
 }

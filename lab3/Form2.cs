@@ -16,10 +16,12 @@ namespace lab3
 {
     public partial class Form2 : Form
     {
+        PgsqlAccess pg = PgsqlAccess.getInstance();
+
         //连接数据库,and some necessary variables
-        private static string connString = "Host=localhost;Port=5432;Username=postgres;Password=hsc1209;Database=whu";//这种连接方式具体是什么意思呢？
-        public static NpgsqlConnection connection = new NpgsqlConnection(connString);
+        NpgsqlConnection connection;
         private DataTable datatable;
+
         NpgsqlDataAdapter dataAdapter;
         private DataSet ds = new DataSet();
 
@@ -40,34 +42,37 @@ namespace lab3
             
             if (e.Node.Bounds.Contains(e.Location))
 
-            {
+            { 
                
-
+                //表的内容显示
             }
         }
         //add nodes towards the treeview
         private void BindTree()
         {
-
+            
             treeView1.BeginUpdate();
             TreeNode tNode = treeView1.Nodes.Add("whu");
             //connect to the database
-            connection.Open();
             string sql = "SELECT tablename FROM pg_tables WHERE tablename NOT LIKE 'pg%' AND tablename NOT LIKE 'sql_%' ORDER BY tablename;";
-            using (var dataAdapter = new NpgsqlDataAdapter(sql, connection))
+            using (connection = pg.GetConnection())
             {
-                using (DataSet ds = new DataSet())
+                using (var dataAdapter = new NpgsqlDataAdapter(sql, connection))
                 {
-                    dataAdapter.Fill(ds);
-                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    using (DataSet ds = new DataSet())
                     {
-                        // 产生子节点(列出当前数据库中所有表名)
-                        treeView1.Nodes[0].Nodes.Add(dr[0].ToString());
+                        dataAdapter.Fill(ds);
+                        foreach (DataRow dr in ds.Tables[0].Rows)
+                        {
+                            // 产生子节点(列出当前数据库中所有表名)
+                            treeView1.Nodes[0].Nodes.Add(dr[0].ToString());
+                        }
                     }
+
+
                 }
-
-
             }
+            
             treeView1.EndUpdate();
         }
         //感觉下面的可以删掉
