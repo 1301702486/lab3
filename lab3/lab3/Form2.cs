@@ -41,7 +41,7 @@ namespace lab3
             if (e.Node.Bounds.Contains(e.Location))
 
             {
-                MessageBox.Show("w");
+               
 
             }
         }
