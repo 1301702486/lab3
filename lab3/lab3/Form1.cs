@@ -13,6 +13,12 @@ namespace lab3
 {
     public partial class Form1 : Form
     {
+        private static string Host = "localhost";
+        private static string User = "postgres";
+        private static string DBname = "whu";
+        private static string Password = "postgres";
+        private static string Port = "5432";
+
         public Form1()
         {
             InitializeComponent();
@@ -23,30 +29,65 @@ namespace lab3
 
         }
 
+
+        //afteryou click OK,exam weather your password is right
         private void button1_Click(object sender, EventArgs e)
-        {
-            string pswd = textBox1.Text;
-            if (pswd != "hsc1209")
+        {   //open the database
+            Host = textBox2.Text;
+            User = textBox3.Text;
+            DBname = textBox4.Text;
+            Password = textBox1.Text;
+            Port = textBox5.Text;
+            NpgsqlConnection conn = null;
+            try
             {
-                MessageBox.Show("Your password is wrong. Please try again.");
+                string connStr = string.Format(
+                        "Server={0}; User Id={1}; Database={2}; Port={3}; Password={4};",
+                        Host,
+                        User,
+                        DBname,
+                        Port,
+                        Password);
+                conn = new NpgsqlConnection(connStr);
+                conn.Open();
+
             }
-            else {
-                var connString = "Host=localhost;Port=5432;Username=postgres;Password=" + pswd + ";Database=whu";
-                using (var conn = new NpgsqlConnection(connString))
+            catch (Exception)
+            {
+                MessageBox.Show("Wrong password!");
+                Application.Exit();
+            }
+            finally
+            {
+                if (conn != null)
                 {
-                    conn.Open();
-                    
+                    conn.Close();
                 }
-                //跳转主界面
+                //change to form2, one of the operations
                 this.DialogResult = DialogResult.OK;
                 this.Dispose();
                 this.Close();
             }
+
+
         }
+
+
+
+
+
+      
+        //cancle your operation
 
         private void button2_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
     }
 }

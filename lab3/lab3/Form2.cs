@@ -9,76 +9,71 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Npgsql;
+using System.Configuration;
 
 namespace lab3
+
 {
     public partial class Form2 : Form
     {
+        //连接数据库,and some necessary variables
+        private static string connString = "Host=localhost;Port=5432;Username=postgres;Password=hsc1209;Database=whu";//这种连接方式具体是什么意思呢？
+        public static NpgsqlConnection connection = new NpgsqlConnection(connString);
+        private DataTable datatable;
+        NpgsqlDataAdapter dataAdapter;
+        private DataSet ds = new DataSet();
+
         public Form2()
         {
             InitializeComponent();
-           
-        }
-        private void Form1_Load(object sender, EventArgs e)
+            this.Load += new EventHandler(Form2_load);
 
+        }
+        private void Form2_load(object sender, EventArgs e)
         {
 
-            treeView1.ShowLines = true;//设置绘制连线
+            BindTree();
 
-            //treeView1.ImageList = p_w_picpathList1;// codego.net/tags/92/1/ 设置ImageList属性
-
-            string P_Connection = string.Format(//创建数据库连接字符串
-
-             "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=test.mdb;User Id=Admin");
-
-            OleDbConnection P_OLEDBConnection = new OleDbConnection(P_Connection);//创建连接对象
-
-
-
-            P_OLEDBConnection.Open();//连接到数据库
-
-            OleDbCommand P_OLEDBCommand = new OleDbCommand(//创建命令对象
-
-                "select * from [Ware]",
-
-                P_OLEDBConnection);
-
-            OleDbDataReader P_Reader = //得到数据读取器
-
-                P_OLEDBCommand.ExecuteReader();
-
-            TreeNode newNode1 = treeView1.Nodes.Add("A", "商品信息", 1, 2);//一级节点
-
-            while (P_Reader.Read())
+        }
+        private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            
+            if (e.Node.Bounds.Contains(e.Location))
 
             {
+                MessageBox.Show("w");
 
-                TreeNode newNode12 = new TreeNode(//二级节点
+            }
+        }
+        //add nodes towards the treeview
+        private void BindTree()
+        {
 
-                    "商品编号" + P_Reader[1].ToString(), 3, 4);
-
-                newNode12.Nodes.Add("A", "商品名称：" + P_Reader[0].ToString(), 5, 6);
-
-                newNode12.Nodes.Add("A", "商品数量：" + P_Reader[3].ToString(), 7, 8);
-
-                newNode12.Nodes.Add("A", "商品价格：" + P_Reader[2].ToString(), 9, 10);
-
-                newNode1.Nodes.Add(newNode12);//添加节点
-
+            treeView1.BeginUpdate();
+            TreeNode tNode = treeView1.Nodes.Add("whu");
+            //connect to the database
+            connection.Open();
+            string sql = "SELECT tablename FROM pg_tables WHERE tablename NOT LIKE 'pg%' AND tablename NOT LIKE 'sql_%' ORDER BY tablename;";
+            using (var dataAdapter = new NpgsqlDataAdapter(sql, connection))
+            {
+                using (DataSet ds = new DataSet())
+                {
+                    dataAdapter.Fill(ds);
+                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    {
+                        // 产生子节点(列出当前数据库中所有表名)
+                        treeView1.Nodes[0].Nodes.Add(dr[0].ToString());
+                    }
+                }
 
 
             }
-
-            P_OLEDBConnection.Close();//关闭数据库连接
-
-            treeView1.ExpandAll();//展开所有节点
+            treeView1.EndUpdate();
+        }
+        //感觉下面的可以删掉
+        private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+        {
 
         }
-
     }
-
-
-
-
-
 }
