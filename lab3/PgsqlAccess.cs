@@ -69,7 +69,7 @@ public class PgsqlAccess
     {
         using (var conn = GetConnection())
         {
-            string updateStr = string.Format("update {0} set {1} = {2} where {3} = {4};",
+            string updateStr = string.Format("update {0} set {1} = '{2}' where {3} = '{4}';",
                     tableName, colName, value, keyName, keyValue);
 
             using (var cmd = new NpgsqlCommand(updateStr, conn))
