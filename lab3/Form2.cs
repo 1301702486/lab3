@@ -15,13 +15,8 @@ namespace lab3
         NpgsqlDataAdapter dataAdapter;
         DataSet dataSet;
 
-        // 枚举表名
-        enum TableName
-        {
-            course,
-            cs,
-            student
-        };
+        // 当前表名
+        string tableName;
 
         public Form2()
         {
@@ -36,10 +31,10 @@ namespace lab3
 
         private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            string name = e.Node.Text.ToString();
-            if (name != "whu")
+            tableName = e.Node.Text.ToString();
+            if (tableName != pg.DBname)
             {
-                string sql = string.Format("select * from {0};", name);
+                string sql = string.Format("select * from {0};", tableName);
 
                 using (connection = pg.GetConnection())
                 {
@@ -48,7 +43,8 @@ namespace lab3
                         using (DataSet ds = new DataSet())
                         {
                             dataAdapter.Fill(ds);
-                            dataGridView1.DataSource = ds.Tables[0];
+                            dgv.DataSource = ds.Tables[0];
+
                         }
                     }
                 }
@@ -60,9 +56,9 @@ namespace lab3
         {
             treeView1.BeginUpdate();
             TreeNode tNode = treeView1.Nodes.Add("whu");
-            //connect to the database
+            // 连接数据库
             string sql = "SELECT tablename FROM pg_tables WHERE tablename NOT LIKE 'pg%' AND tablename NOT LIKE 'sql_%' ORDER BY tablename;";
-            using (connection = pg.GetConnection())//用了using所以不需要关闭了
+            using (connection = pg.GetConnection()) //用了using所以不需要关闭了
             {
                 using (dataAdapter = new NpgsqlDataAdapter(sql, connection))
                 {
@@ -79,11 +75,29 @@ namespace lab3
             }
             treeView1.EndUpdate();
         }
-        
-        //感觉下面的可以删掉
-        private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
-        {
 
+        private void dgv_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            using(connection = pg.GetConnection())
+            {
+                try
+                {
+                    string strColumn = dgv.Columns[e.ColumnIndex].HeaderText; //获取列标题
+                    string strRow = dgv.Rows[e.RowIndex].Cells[0].Value.ToString(); //获取焦点触发行的第一个值
+                    string value = dgv.CurrentCell.Value.ToString(); //获取当前点击的活动单元格的值
+                    string strCmd = string.Format(
+                        "update {0} set {1} = {2} where id = {3};", 
+                        tableName, strColumn, value, strRow);
+                    using(var cmd = new NpgsqlCommand(strCmd, connection))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ee)
+                {
+                    MessageBox.Show(ee.Message.ToString());
+                }
+            }
         }
     }
 }
