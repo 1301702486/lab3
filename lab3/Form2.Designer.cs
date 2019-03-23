@@ -59,7 +59,8 @@
             this.dgv.RowTemplate.Height = 30;
             this.dgv.Size = new System.Drawing.Size(762, 593);
             this.dgv.TabIndex = 1;
-            this.dgv.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_CellValueChanged);
+            this.dgv.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dgv_CellBeginEdit);
+            this.dgv.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_CellEndEdit);
             // 
             // programBindingSource
             // 

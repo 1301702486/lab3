@@ -53,8 +53,7 @@ public class PgsqlAccess
     {
         using (var conn = GetConnection())
         {
-            string insertStr = string.Format(
-                    "insert into {0} {1} values @value;",
+            string insertStr = string.Format("insert into {0} {1} values @value;",
                     tableName, colName);
             using (var cmd = new NpgsqlCommand(insertStr, conn))
             {
@@ -65,19 +64,16 @@ public class PgsqlAccess
         }
     }
 
-    // 简易版update（把colName列的所有值改为value）
-    public void Update(string tableName, string colName, string value)
+    // 简易版update（不能把非空值改为空值）
+    public void Update(string tableName, string colName, string value, string keyName, string keyValue)
     {
         using (var conn = GetConnection())
         {
-            string updateStr = string.Format(
-                    "update {0} set {1} = @value;",
-                    tableName,
-                    colName);
+            string updateStr = string.Format("update {0} set {1} = {2} where {3} = {4};",
+                    tableName, colName, value, keyName, keyValue);
+
             using (var cmd = new NpgsqlCommand(updateStr, conn))
             {
-                cmd.Prepare();
-                cmd.Parameters.AddWithValue("@value", value);
                 cmd.ExecuteNonQuery();
             }
         }
@@ -88,11 +84,8 @@ public class PgsqlAccess
     {
         using (var conn = GetConnection())
         {
-            string deleteStr = string.Format(
-                "delete from {0} where {1} = {2};",
-                tableName,
-                colName,
-                value);
+            string deleteStr = string.Format("delete from {0} where {1} = {2};",
+                tableName, colName, value);
             using (var cmd = new NpgsqlCommand(deleteStr, conn))
             {
                 cmd.ExecuteNonQuery();

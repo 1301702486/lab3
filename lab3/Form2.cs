@@ -7,16 +7,17 @@ namespace lab3
 {
     public partial class Form2 : Form
     {
-        // 获取PgsqlAccess单例对象
         PgsqlAccess pg = PgsqlAccess.getInstance();
-
-        // 连接数据库的变量
+        
         NpgsqlConnection connection;
         NpgsqlDataAdapter dataAdapter;
+        //NpgsqlCommandBuilder commandBuilder;
         DataSet dataSet;
 
-        // 当前表名
         string tableName;
+
+        object cellTempValue = null;
+
 
         public Form2()
         {
@@ -29,29 +30,28 @@ namespace lab3
             BindTree();
         }
 
+        // 选择表后在DataGridView中显示出来
         private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             tableName = e.Node.Text.ToString();
             if (tableName != pg.DBname)
             {
                 string sql = string.Format("select * from {0};", tableName);
-
                 using (connection = pg.GetConnection())
                 {
-                    using (var dataAdapter = new NpgsqlDataAdapter(sql, connection))
+                    using (dataAdapter = new NpgsqlDataAdapter(sql, connection))
                     {
-                        using (DataSet ds = new DataSet())
+                        using (dataSet = new DataSet())
                         {
-                            dataAdapter.Fill(ds);
-                            dgv.DataSource = ds.Tables[0];
-
+                            dataAdapter.Fill(dataSet);
+                            dgv.DataSource = dataSet.Tables[0];
                         }
                     }
                 }
             }
         }
-        
-        //add nodes towards the treeview
+
+        // 在treeview中添加节点
         private void BindTree()
         {
             treeView1.BeginUpdate();
@@ -76,28 +76,61 @@ namespace lab3
             treeView1.EndUpdate();
         }
 
-        private void dgv_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        // 获取修改前单元格值
+        private void dgv_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
         {
-            using(connection = pg.GetConnection())
+            cellTempValue = dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+        }
+
+        
+        private void dgv_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            int currCol = e.ColumnIndex;    // 单元格当前所在列
+            int currRow = e.RowIndex;       // 单元格当前所在行
+
+            if (object.Equals(cellTempValue, dgv.Rows[currRow].Cells[currCol].Value))
             {
-                try
+                //如果没有修改，则返回
+                return;
+            }
+
+            string colName = dgv.Columns[currCol].DataPropertyName;
+            string value = dgv.Rows[currRow].Cells[currCol].Value.ToString();
+            string PkName = null;
+            string PkValue = null;
+
+            // 获取PkName和PkValue
+            using (connection = pg.GetConnection())
+            {
+                string str = "select * from " + tableName + " ;";
+                using (dataAdapter = new NpgsqlDataAdapter(str, connection))
                 {
-                    string strColumn = dgv.Columns[e.ColumnIndex].HeaderText; //获取列标题
-                    string strRow = dgv.Rows[e.RowIndex].Cells[0].Value.ToString(); //获取焦点触发行的第一个值
-                    string value = dgv.CurrentCell.Value.ToString(); //获取当前点击的活动单元格的值
-                    string strCmd = string.Format(
-                        "update {0} set {1} = {2} where id = {3};", 
-                        tableName, strColumn, value, strRow);
-                    using(var cmd = new NpgsqlCommand(strCmd, connection))
+                    using (dataSet = new DataSet())
                     {
-                        cmd.ExecuteNonQuery();
+                        // 获取PkName
+                        dataAdapter.MissingSchemaAction = MissingSchemaAction.AddWithKey;
+                        dataAdapter.Fill(dataSet);
+                        PkName = dataSet.Tables[0].PrimaryKey[0].ColumnName;
+
+                        // 获取主键所在列
+                        int keyCol = 0;
+                        for (int i = 0; i < dataSet.Tables[0].Columns.Count; ++i)
+                        {
+                            if (dataSet.Tables[0].Columns[i].ColumnName == PkName)
+                            {
+                                keyCol = i;
+                                break;
+                            }
+                        }
+
+                        // 获取PkValue
+                        PkValue = dataSet.Tables[0].Rows[currRow][keyCol].ToString();
                     }
                 }
-                catch (Exception ee)
-                {
-                    MessageBox.Show(ee.Message.ToString());
-                }
             }
+            
+            // 更新数据库
+            pg.Update(tableName, colName, value, PkName, PkValue);
         }
     }
 }
