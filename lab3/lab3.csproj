@@ -98,7 +98,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="Form1.datasource" />
+    <None Include="Form2.datasource" />
     <None Include="packages.config" />
+    <None Include="PgsqlAccess.datasource" />
+    <None Include="Program.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

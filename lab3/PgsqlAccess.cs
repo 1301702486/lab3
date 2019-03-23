@@ -55,8 +55,7 @@ public class PgsqlAccess
         {
             string insertStr = string.Format(
                     "insert into {0} {1} values @value;",
-                    tableName,
-                    colName);
+                    tableName, colName);
             using (var cmd = new NpgsqlCommand(insertStr, conn))
             {
                 cmd.Prepare();
