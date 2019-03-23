@@ -21,7 +21,7 @@ namespace lab3
             course,
             cs,
             student
-        }
+        };
 
         public Form2()
         {
@@ -37,11 +37,10 @@ namespace lab3
         private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             string name = e.Node.Text.ToString();
-            string sql;
-
-            if (name == "course")
+            if (name != "whu")
             {
-                sql = "select * from course;";
+                string sql = string.Format("select * from {0};", name);
+
                 using (connection = pg.GetConnection())
                 {
                     using (var dataAdapter = new NpgsqlDataAdapter(sql, connection))
