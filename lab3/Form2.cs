@@ -25,6 +25,7 @@ namespace lab3
             this.Load += new EventHandler(Form2_load);
             panelAddCol.Visible = false;
             panelAlter.Visible = false;
+            panelSelect.Visible = false;
         }
 
         private void Form2_load(object sender, EventArgs e)
@@ -255,6 +256,49 @@ namespace lab3
             string dataType = textBoxTypeName.Text;
             pg.AlterColumn(tableName, colName, dataType);
             panelAlter.Visible = false;
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string sql = string.Format("select * from {0} where {1} = '{2}';", 
+                tableName, textBox1.Text, textBox2.Text);
+            using (connection = pg.GetConnection())
+            {
+                using (dataAdapter = new NpgsqlDataAdapter(sql, connection))
+                {
+                    using (dataSet = new DataSet())
+                    {
+                        dataAdapter.Fill(dataSet);
+                        dgv.DataSource = dataSet.Tables[0];
+                    }
+                }
+            }
+            panelSelect.Visible = false;
+        }
+
+        private void buttonSelect_Click(object sender, EventArgs e)
+        {
+            panelSelect.Visible = true;
+        }
+
+        private void buttonClose1_Click(object sender, EventArgs e)
+        {
+            panelAlter.Visible = false;
+        }
+
+        private void buttonClose2_Click(object sender, EventArgs e)
+        {
+            panelAddCol.Visible = false;
+        }
+
+        private void Form2_Load_1(object sender, EventArgs e)
+        {
+
         }
     }
 }
