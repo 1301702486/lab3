@@ -134,23 +134,12 @@ namespace lab3
             pg.Update(tableName, colName, value, PkName, PkValue);
         }
         
-        /*private void dgv_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        private void CellDelete()
         {
-            int currCol = dgv.CurrentCell.ColumnIndex;    // 单元格当前所在列
-            int currRow = dgv.CurrentCell.RowIndex;       // 单元格当前所在行
-
-            if (object.Equals(cellTempValue, dgv.Rows[currRow].Cells[currCol].Value))
-            {
-                //如果没有修改，则返回
-                return;
-            }
-
-            string colName = dgv.Columns[currCol].DataPropertyName;
-            string value = dgv.Rows[currRow].Cells[currCol].Value.ToString();
-            string PkName = null;
-            string PkValue = null;
-
-            // 获取PkName和PkValue
+            //get present primary key and value to idetify the right row
+            int currRow = dgv.CurrentCell.RowIndex;
+            string colName = null;
+            string value = null;
             using (connection = pg.GetConnection())
             {
                 string str = "select * from " + tableName + " ;";
@@ -158,37 +147,61 @@ namespace lab3
                 {
                     using (dataSet = new DataSet())
                     {
-                        // 获取PkName
+                        // 获取Name
                         dataAdapter.MissingSchemaAction = MissingSchemaAction.AddWithKey;
                         dataAdapter.Fill(dataSet);
-                        PkName = dataSet.Tables[0].PrimaryKey[0].ColumnName;
+                        colName = dataSet.Tables[0].PrimaryKey[0].ColumnName;
 
                         // 获取主键所在列
                         int keyCol = 0;
                         for (int i = 0; i < dataSet.Tables[0].Columns.Count; ++i)
                         {
-                            if (dataSet.Tables[0].Columns[i].ColumnName == PkName)
+                            if (dataSet.Tables[0].Columns[i].ColumnName == colName)
                             {
                                 keyCol = i;
                                 break;
                             }
                         }
 
-                        // 获取PkValue
-                        PkValue = dataSet.Tables[0].Rows[currRow][keyCol].ToString();
+                        // 获取Value
+                        value = dataSet.Tables[0].Rows[currRow][keyCol].ToString();
                     }
                 }
             }
-            
-            // 更新数据库
-            pg.Update(tableName, colName, value, PkName, PkValue);
-        }*/
+            DataGridViewRow currRow1 = dgv.CurrentRow;
+            dgv.Rows.Remove(currRow1);
+            pg.Delete(tableName, colName, value);
+
+        }
+
+        // 删除列
+        private void RemoveColumn()
+        {
+            int colIndex = dgv.CurrentCell.ColumnIndex;
+            string colName = dgv.Columns[colIndex].DataPropertyName;
+            dgv.Columns.RemoveAt(colIndex);
+            pg.DropColumn(tableName, colName);
+        }
+
 
         private void button1_Click(object sender, EventArgs e)
         {
             CellUpdate();
         }
 
-        
+        private void button3_Click(object sender, EventArgs e)
+        {
+            CellDelete();
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            RemoveColumn();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            //insert
+        }
     }
 }

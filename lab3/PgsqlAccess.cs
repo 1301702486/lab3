@@ -84,7 +84,7 @@ public class PgsqlAccess
     {
         using (var conn = GetConnection())
         {
-            string deleteStr = string.Format("delete from {0} where {1} = {2};",
+            string deleteStr = string.Format("delete from {0} where {1} = '{2}';",
                 tableName, colName, value);
             using (var cmd = new NpgsqlCommand(deleteStr, conn))
             {
@@ -92,5 +92,29 @@ public class PgsqlAccess
             }
         }
     }
-    
+
+    public void DropColumn(string tableName, string colName)
+    {
+        using (var conn = GetConnection())
+        {
+            string alterStr = string.Format("alter table {0} drop column {1};", tableName, colName);
+            using (var cmd = new NpgsqlCommand(alterStr, conn))
+            {
+                cmd.ExecuteNonQuery();
+            }
+        }
+    }
+
+    public void AddColumn(string tableName, string colName, string dataType)
+    {
+        using (var conn = GetConnection())
+        {
+            string alterStr = string.Format("alter table {0} add column {1} {2};", tableName, colName, dataType);
+            using (var cmd = new NpgsqlCommand(alterStr, conn))
+            {
+                cmd.ExecuteNonQuery();
+            }
+        }
+    }
+
 }
