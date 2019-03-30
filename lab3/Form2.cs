@@ -23,6 +23,7 @@ namespace lab3
         {
             InitializeComponent();
             this.Load += new EventHandler(Form2_load);
+            panelAddCol.Visible = false;
         }
 
         private void Form2_load(object sender, EventArgs e)
@@ -30,7 +31,8 @@ namespace lab3
             BindTree();
         }
 
-        private void GetPrikey(ref string pkname,ref string pkvalue) {
+        private void GetPrikey(ref string pkname,ref string pkvalue)
+        {
             int currCol = dgv.CurrentCell.ColumnIndex;    // 单元格当前所在列
             int currRow = dgv.CurrentCell.RowIndex;       // 单元格当前所在行
             string PkName = null;
@@ -165,8 +167,8 @@ namespace lab3
             dgv.Columns.RemoveAt(colIndex);
             pg.DropColumn(tableName, colName);
         }
-
-
+        
+   
         private void button1_Click(object sender, EventArgs e)
         {
             CellUpdate();
@@ -185,6 +187,20 @@ namespace lab3
         private void button4_Click(object sender, EventArgs e)
         {
             //insert
+        }
+
+        // 增加列
+        private void button6_Click(object sender, EventArgs e)
+        {
+            panelAddCol.Visible = true;            
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            string colName = textBoxColName.Text;
+            string dataType = textBoxDataType.Text;
+            pg.AddColumn(tableName, colName, dataType);
+            panelAddCol.Visible = false;
         }
     }
 }
