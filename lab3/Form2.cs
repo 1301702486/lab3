@@ -180,7 +180,48 @@ namespace lab3
         // 插入一行数据
         private void buttonInsert_Click(object sender, EventArgs e)
         {
-            //insert
+            string colList = null;
+            string valueList = null;
+            Insert(ref colList, ref valueList);
+            try
+            {
+                pg.Insert(tableName, colList, valueList);
+            }
+            catch(Exception)
+            {
+                MessageBox.Show("您必须为所有非空属性赋值!");
+            }
+            
+        }
+        private void Insert(ref string colList, ref string valueList)
+        {
+            string columns = "(";
+            string values = "(";
+            int total = dgv.ColumnCount;
+            int currRow = dgv.CurrentCell.RowIndex;
+            
+            for (int i = 0; i < total - 1; ++i)
+            {
+                if(dgv.Rows[currRow].Cells[i].Value.ToString() != "")
+                {
+                    
+                    columns += dgv.Columns[i].DataPropertyName;
+                    columns += ",";
+
+                    values += "'";
+                    values += dgv.Rows[currRow].Cells[i].Value.ToString();
+                    values += "',";
+                }
+            }
+            string subCols = columns.Substring(0, columns.Length - 1);
+            string subVals = values.Substring(0, values.Length - 1);
+
+            columns = subCols + ")";
+            
+            values = subVals + ")";
+
+            colList = columns;
+            valueList = values;
         }
 
         // 删除列

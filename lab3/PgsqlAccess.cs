@@ -47,22 +47,20 @@ public class PgsqlAccess
         }
         return conn;
     }
-    
-    // 简易版insert（插入一个单值）
-    public void Insert(string tableName, string colName, string value)
+
+    public void Insert(string tableName, string colList, string valueList)
     {
         using (var conn = GetConnection())
         {
-            string insertStr = string.Format("insert into {0} {1} values @value;",
-                    tableName, colName);
+            string insertStr = string.Format("insert into {0} {1} values {2};",
+                    tableName, colList, valueList);
             using (var cmd = new NpgsqlCommand(insertStr, conn))
             {
-                cmd.Prepare();
-                cmd.Parameters.AddWithValue("@value", value);
                 cmd.ExecuteNonQuery();
             }
         }
     }
+
 
     // 简易版update（不能把非空值改为空值）
     public void Update(string tableName, string colName, string value, string keyName, string keyValue)
