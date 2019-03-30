@@ -24,6 +24,7 @@ namespace lab3
             InitializeComponent();
             this.Load += new EventHandler(Form2_load);
             panelAddCol.Visible = false;
+            panelAlter.Visible = false;
         }
 
         private void Form2_load(object sender, EventArgs e)
@@ -31,7 +32,7 @@ namespace lab3
             BindTree();
         }
 
-        private void GetPrikey(ref string pkname,ref string pkvalue)
+        private void GetPrimarykey(ref string pkname,ref string pkvalue)
         {
             int currCol = dgv.CurrentCell.ColumnIndex;    // 单元格当前所在列
             int currRow = dgv.CurrentCell.RowIndex;       // 单元格当前所在行
@@ -117,8 +118,6 @@ namespace lab3
         }
 
         // 获取修改前单元格值
-
-       
         private void dgv_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
         {
             cellTempValue = dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
@@ -129,7 +128,7 @@ namespace lab3
             int currCol = dgv.CurrentCell.ColumnIndex;    // 单元格当前所在列
             int currRow = dgv.CurrentCell.RowIndex;       // 单元格当前所在行
 
-            if (object.Equals(cellTempValue, dgv.Rows[currRow].Cells[currCol].Value))
+            if (Equals(cellTempValue, dgv.Rows[currRow].Cells[currCol].Value))
             {
                 //如果没有修改，则返回
                 return;
@@ -139,8 +138,7 @@ namespace lab3
             string value = dgv.Rows[currRow].Cells[currCol].Value.ToString();
             string PkName = null;
             string PkValue = null;
-            GetPrikey(ref PkName, ref PkValue);
-           
+            GetPrimarykey(ref PkName, ref PkValue);
 
             // 更新数据库
             pg.Update(tableName, colName, value, PkName, PkValue);
@@ -151,15 +149,14 @@ namespace lab3
             //get present primary key and value to idetify the right row
             int currRow = dgv.CurrentCell.RowIndex;
             string pkName = null;
-            string pkvalue = null;
-            GetPrikey(ref pkName, ref pkvalue);
+            string pkValue = null;
+            GetPrimarykey(ref pkName, ref pkValue);
             DataGridViewRow currRow1 = dgv.CurrentRow;
             dgv.Rows.Remove(currRow1);
-            pg.Delete(tableName, pkName, pkvalue);
+            pg.Delete(tableName, pkName, pkValue);
 
         }
 
-        // 删除列
         private void RemoveColumn()
         {
             int colIndex = dgv.CurrentCell.ColumnIndex;
@@ -167,40 +164,56 @@ namespace lab3
             dgv.Columns.RemoveAt(colIndex);
             pg.DropColumn(tableName, colName);
         }
-        
-   
-        private void button1_Click(object sender, EventArgs e)
+
+        // 更新数据
+        private void buttonUpdate_Click(object sender, EventArgs e)
         {
             CellUpdate();
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        // 删除一行数据
+        private void buttonDelete_Click(object sender, EventArgs e)
         {
             CellDelete();
         }
 
-        private void button5_Click(object sender, EventArgs e)
-        {
-            RemoveColumn();
-        }
-
-        private void button4_Click(object sender, EventArgs e)
+        // 插入一行数据
+        private void buttonInsert_Click(object sender, EventArgs e)
         {
             //insert
         }
 
-        // 增加列
-        private void button6_Click(object sender, EventArgs e)
+        // 删除列
+        private void buttonDrop_Click(object sender, EventArgs e)
         {
-            panelAddCol.Visible = true;            
+            RemoveColumn();
         }
 
-        private void button7_Click(object sender, EventArgs e)
+        // 增加列
+        private void buttonAdd_Click(object sender, EventArgs e)
+        {
+            panelAddCol.Visible = true;
+        }
+        private void buttonDone_Click(object sender, EventArgs e)
         {
             string colName = textBoxColName.Text;
             string dataType = textBoxDataType.Text;
             pg.AddColumn(tableName, colName, dataType);
             panelAddCol.Visible = false;
+        }
+
+        // 修改列的数据类型
+        private void buttonAlter_Click(object sender, EventArgs e)
+        {
+            panelAlter.Visible = true;
+        }
+        private void buttonDone2_Click(object sender, EventArgs e)
+        {
+            int currCol = dgv.CurrentCell.ColumnIndex;
+            string colName = dgv.Columns[currCol].DataPropertyName;
+            string dataType = textBoxTypeName.Text;
+            pg.AlterColumn(tableName, colName, dataType);
+            panelAlter.Visible = false;
         }
     }
 }

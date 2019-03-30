@@ -109,7 +109,8 @@ public class PgsqlAccess
     {
         using (var conn = GetConnection())
         {
-            string alterStr = string.Format("alter table {0} add column {1} {2};", tableName, colName, dataType);
+            string alterStr = string.Format("alter table {0} add column {1} {2};", 
+                tableName, colName, dataType);
             using (var cmd = new NpgsqlCommand(alterStr, conn))
             {
                 cmd.ExecuteNonQuery();
@@ -117,4 +118,16 @@ public class PgsqlAccess
         }
     }
 
+    public void AlterColumn(string tableName, string colName, string dataType)
+    {
+        using (var conn = GetConnection())
+        {
+            string alterStr = string.Format("alter table {0} alter column {1} type {2};", 
+                tableName, colName, dataType);
+            using (var cmd = new NpgsqlCommand(alterStr, conn))
+            {
+                cmd.ExecuteNonQuery();
+            }
+        }
+    }
 }
