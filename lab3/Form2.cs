@@ -77,16 +77,67 @@ namespace lab3
         }
 
         // 获取修改前单元格值
+
+        //begin to edit the cell
         private void dgv_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
         {
             cellTempValue = dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
         }
 
-        
-        private void dgv_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        private void CellUpdate()
         {
-            int currCol = e.ColumnIndex;    // 单元格当前所在列
-            int currRow = e.RowIndex;       // 单元格当前所在行
+            int currCol = dgv.CurrentCell.ColumnIndex;    // 单元格当前所在列
+            int currRow = dgv.CurrentCell.RowIndex;       // 单元格当前所在行
+
+            if (object.Equals(cellTempValue, dgv.Rows[currRow].Cells[currCol].Value))
+            {
+                //如果没有修改，则返回
+                return;
+            }
+
+            string colName = dgv.Columns[currCol].DataPropertyName;
+            string value = dgv.Rows[currRow].Cells[currCol].Value.ToString();
+            string PkName = null;
+            string PkValue = null;
+
+            // 获取PkName和PkValue
+            using (connection = pg.GetConnection())
+            {
+                string str = "select * from " + tableName + " ;";
+                using (dataAdapter = new NpgsqlDataAdapter(str, connection))
+                {
+                    using (dataSet = new DataSet())
+                    {
+                        // 获取PkName
+                        dataAdapter.MissingSchemaAction = MissingSchemaAction.AddWithKey;
+                        dataAdapter.Fill(dataSet);
+                        PkName = dataSet.Tables[0].PrimaryKey[0].ColumnName;
+
+                        // 获取主键所在列
+                        int keyCol = 0;
+                        for (int i = 0; i < dataSet.Tables[0].Columns.Count; ++i)
+                        {
+                            if (dataSet.Tables[0].Columns[i].ColumnName == PkName)
+                            {
+                                keyCol = i;
+                                break;
+                            }
+                        }
+
+                        // 获取PkValue
+                        PkValue = dataSet.Tables[0].Rows[currRow][keyCol].ToString();
+                    }
+                }
+            }
+
+            // 更新数据库
+            pg.Update(tableName, colName, value, PkName, PkValue);
+        }
+        
+        /*private void dgv_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            int currCol = dgv.CurrentCell.ColumnIndex;    // 单元格当前所在列
+            int currRow = dgv.CurrentCell.RowIndex;       // 单元格当前所在行
 
             if (object.Equals(cellTempValue, dgv.Rows[currRow].Cells[currCol].Value))
             {
@@ -131,6 +182,13 @@ namespace lab3
             
             // 更新数据库
             pg.Update(tableName, colName, value, PkName, PkValue);
+        }*/
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            CellUpdate();
         }
+
+        
     }
 }
