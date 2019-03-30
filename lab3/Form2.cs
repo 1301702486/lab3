@@ -30,6 +30,44 @@ namespace lab3
             BindTree();
         }
 
+        private void GetPrikey(ref string pkname,ref string pkvalue) {
+            int currCol = dgv.CurrentCell.ColumnIndex;    // 单元格当前所在列
+            int currRow = dgv.CurrentCell.RowIndex;       // 单元格当前所在行
+            string PkName = null;
+            string PkValue = null;
+
+            // 获取PkName和PkValue
+            using (connection = pg.GetConnection())
+            {
+                string str = "select * from " + tableName + " ;";
+                using (dataAdapter = new NpgsqlDataAdapter(str, connection))
+                {
+                    using (dataSet = new DataSet())
+                    {
+                        // 获取PkName
+                        dataAdapter.MissingSchemaAction = MissingSchemaAction.AddWithKey;
+                        dataAdapter.Fill(dataSet);
+                        PkName = dataSet.Tables[0].PrimaryKey[0].ColumnName;
+                        pkname = PkName;
+                        // 获取主键所在列
+                        int keyCol = 0;
+                        for (int i = 0; i < dataSet.Tables[0].Columns.Count; ++i)
+                        {
+                            if (dataSet.Tables[0].Columns[i].ColumnName == PkName)
+                            {
+                                keyCol = i;
+                                break;
+                            }
+                        }
+
+                        // 获取PkValue
+                        PkValue = dataSet.Tables[0].Rows[currRow][keyCol].ToString();
+                        pkvalue = PkValue;
+                    }
+                }
+            }
+        }
+
         // 选择表后在DataGridView中显示出来
         private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
@@ -78,7 +116,7 @@ namespace lab3
 
         // 获取修改前单元格值
 
-        //begin to edit the cell
+       
         private void dgv_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
         {
             cellTempValue = dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
@@ -99,36 +137,8 @@ namespace lab3
             string value = dgv.Rows[currRow].Cells[currCol].Value.ToString();
             string PkName = null;
             string PkValue = null;
-
-            // 获取PkName和PkValue
-            using (connection = pg.GetConnection())
-            {
-                string str = "select * from " + tableName + " ;";
-                using (dataAdapter = new NpgsqlDataAdapter(str, connection))
-                {
-                    using (dataSet = new DataSet())
-                    {
-                        // 获取PkName
-                        dataAdapter.MissingSchemaAction = MissingSchemaAction.AddWithKey;
-                        dataAdapter.Fill(dataSet);
-                        PkName = dataSet.Tables[0].PrimaryKey[0].ColumnName;
-
-                        // 获取主键所在列
-                        int keyCol = 0;
-                        for (int i = 0; i < dataSet.Tables[0].Columns.Count; ++i)
-                        {
-                            if (dataSet.Tables[0].Columns[i].ColumnName == PkName)
-                            {
-                                keyCol = i;
-                                break;
-                            }
-                        }
-
-                        // 获取PkValue
-                        PkValue = dataSet.Tables[0].Rows[currRow][keyCol].ToString();
-                    }
-                }
-            }
+            GetPrikey(ref PkName, ref PkValue);
+           
 
             // 更新数据库
             pg.Update(tableName, colName, value, PkName, PkValue);
@@ -138,39 +148,12 @@ namespace lab3
         {
             //get present primary key and value to idetify the right row
             int currRow = dgv.CurrentCell.RowIndex;
-            string colName = null;
-            string value = null;
-            using (connection = pg.GetConnection())
-            {
-                string str = "select * from " + tableName + " ;";
-                using (dataAdapter = new NpgsqlDataAdapter(str, connection))
-                {
-                    using (dataSet = new DataSet())
-                    {
-                        // 获取Name
-                        dataAdapter.MissingSchemaAction = MissingSchemaAction.AddWithKey;
-                        dataAdapter.Fill(dataSet);
-                        colName = dataSet.Tables[0].PrimaryKey[0].ColumnName;
-
-                        // 获取主键所在列
-                        int keyCol = 0;
-                        for (int i = 0; i < dataSet.Tables[0].Columns.Count; ++i)
-                        {
-                            if (dataSet.Tables[0].Columns[i].ColumnName == colName)
-                            {
-                                keyCol = i;
-                                break;
-                            }
-                        }
-
-                        // 获取Value
-                        value = dataSet.Tables[0].Rows[currRow][keyCol].ToString();
-                    }
-                }
-            }
+            string pkName = null;
+            string pkvalue = null;
+            GetPrikey(ref pkName, ref pkvalue);
             DataGridViewRow currRow1 = dgv.CurrentRow;
             dgv.Rows.Remove(currRow1);
-            pg.Delete(tableName, colName, value);
+            pg.Delete(tableName, pkName, pkvalue);
 
         }
 
